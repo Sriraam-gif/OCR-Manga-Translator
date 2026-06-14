@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+anthropic
+python-dotenv
+playwright
+pillow
+httpx
+python-multipart
+# Detection + inpaint pipeline (mirrors manga-image-translator's stack)
+opencv-python==4.11.0.86
+numpy
+paddleocr<3
+paddlepaddle==2.6.2
+simple-lama-inpainting
