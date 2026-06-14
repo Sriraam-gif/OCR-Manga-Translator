@@ -152,6 +152,20 @@ Cloudflare on the sites tested, so this path may return no panels. See
 
 ---
 
+## Run on a free GPU (~4x faster)
+
+Detection + inpainting are the slow part on CPU. Run them on a free Colab **T4
+GPU** to go from ~30s to ~8s per panel — no code changes (the backend
+auto-detects CUDA).
+
+1. Open **[colab.research.google.com](https://colab.research.google.com)** → upload [`colab_gpu.ipynb`](colab_gpu.ipynb).
+2. **Runtime → Change runtime type → T4 GPU**.
+3. Run the cells: it clones this repo, installs GPU deps, takes your API key, and
+   prints a public `trycloudflare.com` URL serving the backend.
+
+Point the frontend's Vite proxy (or your requests) at that URL. Colab sessions
+are ephemeral (~12h max), so this is a dev/demo accelerator, not 24/7 hosting.
+
 ## Status
 
 - ✅ Single-image translation: detect → translate → inpaint → typeset, end to end
