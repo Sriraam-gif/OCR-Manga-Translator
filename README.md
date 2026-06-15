@@ -152,10 +152,17 @@ cd backend
 PYTHONIOENCODING=utf-8 venv/Scripts/python.exe test_translate.py input.jpg output.png
 ```
 
+**On any site (Chrome extension — recommended for real chapters):** load the
+[`extension/`](extension/) folder as an unpacked Chrome extension, open a chapter
+page, and click **Translate this page**. It reads the panels straight from the
+tab you're viewing and sends them to your local backend — so it works on sites
+the scraper can't reach (e.g. behind Cloudflare). Setup in
+[`extension/README.md`](extension/README.md).
+
 **Whole chapter (URL):** paste a chapter URL in the UI. This runs the same
 pipeline on every scraped panel — **but** scraping is currently blocked by
-Cloudflare on the sites tested, so this path may return no panels. See
-[`KNOWN_ISSUES.md`](KNOWN_ISSUES.md).
+Cloudflare on the sites tested, so this path may return no panels (use the
+extension instead). See [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md).
 
 ---
 
@@ -178,7 +185,8 @@ are ephemeral (~12h max), so this is a dev/demo accelerator, not 24/7 hosting.
 - ✅ Single-image translation: detect → translate → inpaint → typeset, end to end
 - ✅ Output quality on par with hand-scanlated references
 - ✅ Context-aware translation: whole-page context, chapter-consistent glossary, tone control
-- ⚠️ Chapter scraping blocked by Cloudflare (bypass is the next work item)
+- ✅ Chrome extension: translate panels on any site (works around the Cloudflare-blocked scraper)
+- ⚠️ Chapter-URL scraper still blocked by Cloudflare — use the extension instead
 - ⚠️ Stylized sound-effects drawn into the art (not in bubbles) are left untranslated
 - ⬜ Phase 2 (translation-quality eval pipeline) — planned, not built
 

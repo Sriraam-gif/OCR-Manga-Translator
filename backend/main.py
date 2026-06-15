@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 import httpx
 from fastapi import FastAPI, File, Form, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from starlette.concurrency import run_in_threadpool
 
@@ -34,6 +35,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Manga/Manhwa OCR Translator", lifespan=lifespan)
+
+# Allow the browser extension (and any local frontend) to call the API. This is a
+# self-hosted local tool, so a permissive policy is fine.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Image CDNs frequently require a browser-like UA and a referer to serve panels.
 _DOWNLOAD_HEADERS = {

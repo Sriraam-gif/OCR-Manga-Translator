@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Manga OCR Translator",
+  "version": "0.1.0",
+  "description": "Translate manga/manhwa panels on the current page using your local backend.",
+  "permissions": ["scripting", "activeTab"],
+  "host_permissions": ["http://localhost:8000/*", "http://127.0.0.1:8000/*", "<all_urls>"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Translate this page"
+  }
+}
