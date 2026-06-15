@@ -213,15 +213,31 @@ def translate_image(
 
     translations, glossary = _translate_bubbles(arr, bubbles, options, glossary)
 
-    cleaned = inpaint.lama_clean(arr, bubbles)
+    # Only touch boxes we actually have a translation for. Erasing a box whose
+    # translation came back empty (a skipped caption or a spurious detection)
+    # would leave a blank white rectangle, so we keep those as the original art.
+    translated = [
+        (bub, tr)
+        for bub, tr in zip(bubbles, translations)
+        if (tr.get("translated_text") or "").strip()
+    ]
+
+    if not translated:
+        return {
+            "regions": [],
+            "rendered_image": f"data:image/png;base64,{_png_b64(arr)}",
+            "glossary": glossary,
+        }
+
+    cleaned = inpaint.lama_clean(arr, [bub for bub, _ in translated])
 
     items, regions = [], []
-    for bub, tr in zip(bubbles, translations):
+    for bub, tr in translated:
         x0, y0, x1, y1 = bub["box"]
-        items.append({"box": [x0, y0, x1, y1], "text": tr.get("translated_text", "")})
+        items.append({"box": [x0, y0, x1, y1], "text": tr["translated_text"]})
         regions.append({
             "original_text": tr.get("original_text", ""),
-            "translated_text": tr.get("translated_text", ""),
+            "translated_text": tr["translated_text"],
             "box": {"x": x0 / w, "y": y0 / h, "width": (x1 - x0) / w, "height": (y1 - y0) / h},
         })
 
