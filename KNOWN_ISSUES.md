@@ -14,8 +14,9 @@ test against real chapter URLs (Step 5).
 
 - **Anti-bot protection blocks Playwright on some sites.** Sites behind
   Cloudflare or with bot detection may serve a challenge page instead of panels,
-  returning zero images. Per the spec, we don't try to defeat anti-scraping —
-  test against a more permissive site instead.
+  returning zero images. We don't try to defeat anti-scraping — **use the Chrome
+  extension instead**, which reads panels from the tab you've already opened (so
+  you've already passed Cloudflare/login). See [`extension/`](extension/).
 - **Panel detection is a size heuristic.** Any `<img>` rendered at least
   400×400px is treated as a panel. This can miss small panels and can include
   large ads, banners, or cover art. Tune `min_width` / `min_height` in
@@ -44,6 +45,14 @@ test against real chapter URLs (Step 5).
 - **Sound effects drawn into the art are not translated.** Stylized onomatopoeia
   baked into the artwork (outside speech bubbles) is intentionally left alone —
   the detector may not box it, and inpainting it would damage the art.
+- **Site watermarks get treated as dialogue.** Scanlation/site watermark text
+  baked into the image (e.g. `MANGA18.CLUB`, "Read Manga Online…") is detected and
+  translated like a real bubble. No filter for this yet.
+- **Untranslated boxes are left as-is (not blanked).** Earlier, any detected box
+  was erased even when the translation came back empty, leaving blank white
+  rectangles. Now only boxes with a real translation are erased + typeset; empties
+  keep the original art. The trade-off: a genuinely-missed line stays in its
+  original language rather than being wiped.
 - **Detection quality drives everything.** If DBNet misses a bubble, it won't be
   translated or cleaned; if a box is loose, the inpaint mask is larger than
   needed. Tall strips are tiled so detection runs near native resolution

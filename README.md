@@ -4,12 +4,18 @@ Translate a manga (Japanese) or manhwa (Korean) panel into English — and get t
 translation **rendered back onto the image**: the original text is erased from the
 art and the English is typeset into the speech bubbles.
 
-You can upload a single panel, or paste a chapter URL and have every panel
-scraped and translated.
+You can upload a single panel in the web UI, or use the **Chrome extension** to
+translate panels on any chapter page you're reading. (A chapter-URL scraper exists
+too, but it's blocked by Cloudflare on most sites — the extension is the way to do
+real chapters; see below.)
 
 ```
   原文 / 원문 / texto original   ──▶   clean English, in the bubble
 ```
+
+> 👉 **Just want to use it?** See **[`USAGE.md`](USAGE.md)** — a step-by-step
+> first-time guide (clone → add your own API key → run → translate). The rest of
+> this file is the overview and design.
 
 This project uses the same pipeline the established open-source manga translators
 use (manga-image-translator, MangaQuick, Koharu): a dedicated text **detector**, a
@@ -54,7 +60,7 @@ Because our translation step is an LLM, we do what they structurally can't:
 ## Tech stack
 
 - **Backend:** Python 3.11, FastAPI + Uvicorn
-- **Detection:** PaddleOCR (DBNet) · **Inpaint:** simple-lama-inpainting (LaMa, via PyTorch CPU)
+- **Detection:** PaddleOCR (DBNet) · **Inpaint:** simple-lama-inpainting (LaMa, via PyTorch — CPU or CUDA)
 - **Translation:** Anthropic Claude API (`claude-sonnet-4-6`)
 - **Scraping:** Playwright (headless Chromium)
 - **Frontend:** React + Vite + Tailwind CSS
@@ -69,7 +75,7 @@ Because our translation step is an LLM, we do what they structurally can't:
 ```
 OCR Manga Translator/
 ├── backend/
-│   ├── main.py            # FastAPI app + HTTP endpoints
+│   ├── main.py            # FastAPI app + HTTP endpoints (CORS, model warm-start)
 │   ├── translate.py       # pipeline orchestrator + Claude translation step
 │   ├── detect.py          # DBNet text detection + bubble grouping
 │   ├── inpaint.py         # LaMa text removal
@@ -77,16 +83,21 @@ OCR Manga Translator/
 │   ├── scraper.py         # Playwright: chapter URL -> panel image URLs
 │   ├── test_translate.py  # CLI helper to translate one image
 │   ├── requirements.txt
+│   ├── .env.example       # copy to .env and add your key
 │   └── .env               # ANTHROPIC_API_KEY (gitignored)
 ├── frontend/
 │   └── src/
 │       ├── App.jsx
 │       └── components/{UrlInput,ImageUpload,PanelResult}.jsx
+├── extension/             # Chrome extension: "Translate this page" on any site
+├── colab_gpu.ipynb        # run the backend on a free Colab GPU (optional)
+├── start.ps1              # one command: launch backend + frontend
 ├── README.md              # you are here
+├── USAGE.md               # step-by-step first-time user guide
 ├── ARCHITECTURE.md        # deep dive on the design + request flows
 ├── AGENTS.md              # guide for contributors / AI coding agents
 ├── KNOWN_ISSUES.md        # limitations & failure modes
-└── CLAUDE.md              # original build spec + project notes
+└── CLAUDE.md              # project guide + original build spec
 ```
 
 ---
@@ -103,11 +114,15 @@ pip install -r requirements.txt
 playwright install chromium        # only needed for chapter-URL scraping
 ```
 
-Add your Anthropic key to `backend/.env`:
+Add your Anthropic key — copy the template and paste your key:
 
+```bash
+cp .env.example .env        # in backend/  (Windows: copy .env.example .env)
+# then edit backend/.env:  ANTHROPIC_API_KEY=sk-ant-...
 ```
-ANTHROPIC_API_KEY=sk-ant-...
-```
+
+Each user needs their **own** Anthropic API key (from
+<https://console.anthropic.com/>) — translation calls cost money per request.
 
 Run the server:
 
@@ -177,8 +192,11 @@ auto-detects CUDA).
 3. Run the cells: it clones this repo, installs GPU deps, takes your API key, and
    prints a public `trycloudflare.com` URL serving the backend.
 
-Point the frontend's Vite proxy (or your requests) at that URL. Colab sessions
-are ephemeral (~12h max), so this is a dev/demo accelerator, not 24/7 hosting.
+Point the frontend at that URL with `VITE_BACKEND_URL=<url> npm run dev`, or paste
+it into the extension's backend field. Colab sessions are ephemeral (~12h max), so
+this is a dev/demo accelerator, not 24/7 hosting.
+
+---
 
 ## Status
 

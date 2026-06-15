@@ -63,6 +63,9 @@ If you change deps, re-test imports in this order: `torch`, `cv2`, `paddleocr`,
 
 ## Running & restarting the backend
 
+From the repo root, **`./start.ps1`** launches the backend and frontend together.
+To run the backend alone (e.g. while iterating on the pipeline):
+
 ```bash
 cd backend
 PYTHONIOENCODING=utf-8 venv/Scripts/python.exe -m uvicorn main:app --port 8000
@@ -109,8 +112,10 @@ When tuning, keep a known-good reference image around and compare side by side.
 | Change the translation prompt / model / batching | `translate.py` | `_build_prompt`, `_TONE_GUIDE`, `MODEL`, `_translate_bubbles` |
 | Cleaner text removal | `inpaint.py` | mask dilation, per-crop padding |
 | Font, size, outline, color of typeset text | `render.py` | `_FONT_CANDIDATES`, `_fit`, `max_font`, stroke |
-| HTTP endpoints / request handling | `main.py` | heavy work runs via `run_in_threadpool` |
-| Panel scraping | `scraper.py` | Cloudflare-blocked today; see KNOWN_ISSUES |
+| HTTP endpoints / request handling | `main.py` | heavy work runs via `run_in_threadpool`; CORS + model warm-start live here |
+| Translate panels on any website | `extension/` | MV3 popup posts page images to the backend; works around the blocked scraper |
+| GPU vs CPU device selection | `detect.py` / `inpaint.py` | auto-CUDA, CPU fallback; run on a free GPU via `colab_gpu.ipynb` |
+| Panel scraping | `scraper.py` | Cloudflare-blocked; prefer the extension |
 
 Data contract between backend and frontend:
 `{ "regions": [{original_text, translated_text, box:{x,y,width,height}}], "rendered_image": "data:image/png;base64,...", "glossary": {term: translation} }`.
@@ -144,10 +149,13 @@ full-page-context behavior when editing the prompt.
 ## Known sharp edges
 
 - **Scraping is Cloudflare-blocked** on the sites tested — the chapter-URL flow
-  returns no panels. Single-image upload is the working path. (Bypass is the next
-  planned task.)
+  returns no panels. The working paths are single-image upload and the **Chrome
+  extension** (reads panels from your logged-in tab; see [`extension/`](extension/)).
+- **Site watermarks** baked into scans get detected and translated like dialogue —
+  no filter yet.
 - **Sound-effects baked into the art** (not in bubbles) are intentionally not
   translated.
-- ~30s/panel; a long chapter is slow because panels run sequentially.
+- ~30s/panel on CPU; a long chapter is slow because panels run sequentially. For
+  ~4x speed run the backend on a free GPU via `colab_gpu.ipynb`.
 
 See [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md) for the full list.

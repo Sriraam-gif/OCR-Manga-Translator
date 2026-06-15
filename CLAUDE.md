@@ -1,6 +1,7 @@
 # CLAUDE.md — Project guide
 
-> **New here? Start with [`README.md`](README.md).** For internals see
+> **New here? Start with [`README.md`](README.md).** To just *use* it, see
+> [`USAGE.md`](USAGE.md) (step-by-step first-time guide); for internals see
 > [`ARCHITECTURE.md`](ARCHITECTURE.md); for how to work on the code (setup,
 > Windows gotchas, testing) see [`AGENTS.md`](AGENTS.md); for limitations see
 > [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md).
@@ -20,10 +21,19 @@ detect.py (DBNet/PaddleOCR)  →  translate.py (Claude claude-sonnet-4-6)
 The output is a **finished translated image**: the original text is erased from
 the art and the English is typeset into the bubbles (not shown as a caption).
 
+Our differentiator is the **translation step**: unlike the bubble-by-bubble
+DeepL/Google calls the other tools use, we send the **whole page** to Claude for
+context-aware translation, a **chapter-consistent glossary** (names/terms threaded
+across panels), and a **tone dial** (natural / literal / localized + honorifics).
+
 - ✅ Single-image translation, end to end, quality on par with hand-scanlation.
-- ⚠️ Chapter scraping is blocked by Cloudflare on tested sites (next work item).
+- ✅ Context-aware translation: whole-page context, glossary, tone control.
+- ✅ **Chrome extension** (`extension/`) — translate panels on any site; the
+  practical way to do real chapters (works around the blocked scraper).
+- ⚠️ Chapter-URL scraper still Cloudflare-blocked — use the extension instead.
 - ⬜ Phase 2 eval pipeline (`eval/`) not built yet.
-- Runs CPU-only, ~30s/panel. Heavy deps: PyTorch (CPU) + PaddlePaddle + LaMa.
+- Runs CPU-only by default, ~30s/panel; optional free GPU via `colab_gpu.ipynb`
+  (~8s/panel). Heavy deps: PyTorch + PaddlePaddle + LaMa. Device-aware (auto-CUDA).
 
 ### Working style for this repo
 
