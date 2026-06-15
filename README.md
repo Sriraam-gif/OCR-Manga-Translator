@@ -130,6 +130,13 @@ npm run dev
 Open the URL Vite prints (usually <http://127.0.0.1:5173>). The dev server proxies
 API calls to the backend, so there are no CORS issues.
 
+### One command (after the first-time setup above)
+
+From the repo root, `./start.ps1` opens the backend and frontend together. Then
+open <http://127.0.0.1:5173>. Runs on CPU (~30s/panel) — no GPU needed. For a
+~4x speedup you can optionally run the backend on a free GPU (see below), but
+the local CPU setup is the supported default.
+
 ---
 
 ## Using it
