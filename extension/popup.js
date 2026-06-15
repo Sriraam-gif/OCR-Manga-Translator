@@ -12,6 +12,8 @@ goBtn.addEventListener("click", run);
 
 async function run() {
   const backend = (document.getElementById("backend").value || "http://localhost:8000").replace(/\/$/, "");
+  const tone = document.getElementById("tone").value;
+  const keepHonorifics = document.getElementById("honorifics").checked;
   goBtn.disabled = true;
   statusEl.textContent = "Scanning page...";
 
@@ -38,6 +40,8 @@ async function run() {
 
       const fd = new FormData();
       fd.append("file", blob, "panel.jpg");
+      fd.append("tone", tone);
+      fd.append("keep_honorifics", keepHonorifics);
       const tr = await fetch(backend + "/translate-image", { method: "POST", body: fd });
       const data = await tr.json();
 

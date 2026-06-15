@@ -9,6 +9,8 @@ function App() {
   const [panels, setPanels] = useState([])
   const [error, setError] = useState(null)
   const [submitted, setSubmitted] = useState(false)
+  const [tone, setTone] = useState('natural')
+  const [keepHonorifics, setKeepHonorifics] = useState(true)
 
   const handleTranslateChapter = async (url) => {
     setLoading(true)
@@ -19,7 +21,7 @@ function App() {
       const res = await fetch('/translate-chapter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, tone, keep_honorifics: keepHonorifics }),
       })
       if (!res.ok) throw new Error(`Server error (${res.status})`)
       const data = await res.json()
@@ -39,6 +41,8 @@ function App() {
     try {
       const formData = new FormData()
       formData.append('file', file)
+      formData.append('tone', tone)
+      formData.append('keep_honorifics', keepHonorifics)
       const res = await fetch('/translate-image', { method: 'POST', body: formData })
       if (!res.ok) throw new Error(`Server error (${res.status})`)
       const data = await res.json()
@@ -55,6 +59,31 @@ function App() {
     <div className="min-h-screen bg-gray-100 text-gray-900">
       <div className="mx-auto max-w-3xl px-4 py-8">
         <h1 className="mb-6 text-3xl font-bold">Manga / Manhwa OCR Translator</h1>
+
+        <div className="mb-6 flex flex-wrap items-center gap-5 rounded border border-gray-200 bg-white p-3 text-sm">
+          <label className="flex items-center gap-2">
+            <span className="font-medium text-gray-700">Tone</span>
+            <select
+              value={tone}
+              onChange={(e) => setTone(e.target.value)}
+              disabled={loading}
+              className="rounded border border-gray-300 px-2 py-1"
+            >
+              <option value="natural">Natural</option>
+              <option value="literal">Literal</option>
+              <option value="localized">Localized</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={keepHonorifics}
+              onChange={(e) => setKeepHonorifics(e.target.checked)}
+              disabled={loading}
+            />
+            <span className="text-gray-700">Keep honorifics (-san, -nim, oppa)</span>
+          </label>
+        </div>
 
         <div className="space-y-4">
           <div>

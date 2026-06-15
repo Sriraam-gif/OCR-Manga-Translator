@@ -17,6 +17,16 @@
     <h1>Manga OCR Translator</h1>
     <label>Backend URL (your local server)</label>
     <input id="backend" value="http://localhost:8000" />
+    <label>Tone</label>
+    <select id="tone" style="width:100%; padding:5px; font-size:12px;">
+      <option value="natural">Natural</option>
+      <option value="literal">Literal</option>
+      <option value="localized">Localized</option>
+    </select>
+    <label style="display:flex; align-items:center; gap:6px; margin-top:8px;">
+      <input type="checkbox" id="honorifics" checked style="width:auto;" />
+      Keep honorifics (-san, -nim, oppa)
+    </label>
     <button id="go">Translate this page</button>
     <div id="status"></div>
     <script src="popup.js"></script>
